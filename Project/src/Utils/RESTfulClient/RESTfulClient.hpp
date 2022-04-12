@@ -2,10 +2,10 @@
 #include <WiFi.h>           // For connecting the ESP32 to our local-WiFi
 #include <WebServer.h>      // For setting up the ESP32 as WebServer
 #include <ArduinoJson.h>    // Arduino JSON library
-#include <FreeRTOS.h>
-#include <string>           //
+#include <FreeRTOS.h>       // ?????
+#include <string>           // For handling Strings.
 #include <exception>        // For handling exceptions
-#include <stdexcept>        //
+#include <stdexcept>        // For catching global exception
 
 #define STATIC_JSON_DOCUMENT_SIZE 2048 // 2KB size is all the needed
 
@@ -13,24 +13,26 @@
  *  WiFi HTTP statuses
  */
 enum HTTP_STATUS {
-    SUCCESS = 200,
-    NOT_FOUND = 404,
-    INTERNAL_ERROR = 500,
-    TIME_OUT = 504
+  SUCCESS = 200,
+  NOT_FOUND = 404,
+  INTERNAL_ERROR = 500,
+  TIME_OUT = 504
 };
 
 typedef StaticJsonDocument<STATIC_JSON_DOCUMENT_SIZE> JsonDocument_2KB;
 
 class RESTfulClient {
-private:
+  private:
     /**
      *  This default method doesn't read anything from the JSON-document.
      */
     static void defaultJsonDocumnetReader(JsonDocument_2KB) {}
+    
     /**
      * This default method doesn't assign anything to the JSON-document.
      */
     static void defaultJsonDocumnetAssigner(JsonDocument_2KB*) {}
+    
     /**
      * This method generates a Json-Object-payload with the following format
      * { "error" - error }
@@ -39,9 +41,9 @@ private:
     static void generateErrorPayload(String error);
 
     /**
-     * This method returns a HttpRequest handler (Status: NOT_FOUND) for
+     * This method returns a HttpRequest handler (Status: NOT_FOUND) for 
      * the case in which the route is not found!
-     *
+     * 
      * It send HttpResponse in the following format (Plain Text):
      *
      * URI: <requested url>
@@ -78,8 +80,8 @@ private:
       * @param jsonDocumentAssigner  - pointer to a function that inserts the data to a clean JSON-document.
       */
     static void createJsonDocument(void (*jsonDocumentAssigner)(JsonDocument_2KB*));
-
-public:
+    
+  public:
     /**
       * This Method initiates the RESTfulClient template
       * - MUST BE CALLED AT setup() method!
