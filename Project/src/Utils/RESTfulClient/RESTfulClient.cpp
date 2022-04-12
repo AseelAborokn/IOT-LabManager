@@ -39,7 +39,7 @@ void RESTfulClient::setUpRouteConfigurationsAndBegin() {
     server.begin();
 }
 
-void RESTfulClient::postHandlerTemplate(char *url, void (*jsonDocumentReader)(JsonDocument_2KB)) {
+void RESTfulClient::postHandlerTemplate(char *url, void (*jsonDocumentReader)(JsonDocument)) {
     Serial.print("POST url: ");
     Serial.println(url);
     if (server.hasArg("plain") == false) { }
@@ -56,7 +56,7 @@ void RESTfulClient::postHandlerTemplate(char *url, void (*jsonDocumentReader)(Js
     server.send(SUCCESS, "application/json", "{}");
 }
 
-void RESTfulClient::getHandlerTemplate(char *url, void (*jsonDocumentAssigner)(JsonDocument_2KB*)) {
+void RESTfulClient::getHandlerTemplate(char *url, void (*jsonDocumentAssigner)(JsonDocument*)) {
     Serial.print("GET url: ");
     Serial.println(url);
     try {
@@ -69,7 +69,7 @@ void RESTfulClient::getHandlerTemplate(char *url, void (*jsonDocumentAssigner)(J
     server.send(SUCCESS, "application/json", buffer);
 }
 
-void RESTfulClient::createJsonDocument(void (*jsonDocumentAssigner)(JsonDocument_2KB*)) {
+void RESTfulClient::createJsonDocument(void (*jsonDocumentAssigner)(JsonDocument*)) {
     jsonDocument.clear();
     jsonDocumentAssigner(&jsonDocument);
     serializeJson(jsonDocument, buffer);
@@ -80,11 +80,11 @@ void RESTfulClient::addJsonObject(void (*jsonObjectAssigner)(JsonObject*)) {
     jsonObjectAssigner(&obj);
 }
 
-void RESTfulClient::addGetRoute(char* url, void (*jsonDocumentAssigner)(JsonDocument_2KB*)) {
+void RESTfulClient::addGetRoute(char* url, void (*jsonDocumentAssigner)(JsonDocument*)) {
     server.on(url, [url, jsonDocumentAssigner](){ RESTfulClient::getHandlerTemplate(url, jsonDocumentAssigner); });
 }
 
-void RESTfulClient::addPostRoute(char* url, void (*jsonDocumentReader)(JsonDocument_2KB)) {
+void RESTfulClient::addPostRoute(char* url, void (*jsonDocumentReader)(JsonDocument)) {
     server.on(url, HTTP_POST, [url, jsonDocumentReader](){ RESTfulClient::postHandlerTemplate(url, jsonDocumentReader); });
 }
 

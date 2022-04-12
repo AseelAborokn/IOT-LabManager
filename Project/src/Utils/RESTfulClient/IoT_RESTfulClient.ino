@@ -6,19 +6,19 @@ const char *password = "0527799259";
 int temperature = -1;
 //RESTfulClient restClient;
 
-void sayHallo(JsonDocument_2KB* doc) {
+void sayHallo(StaticJsonDocument<STATIC_JSON_DOCUMENT_SIZE>* doc) {
     (*doc)["say_hi"] = "hello 3me shokri";
 }
 
-void temperatureJsonDocAssigner(JsonDocument_2KB* doc) {
+void temperatureJsonDocAssigner(StaticJsonDocument<STATIC_JSON_DOCUMENT_SIZE>* doc) {
     (*doc)["temperature"] = temperature;
 }
 
-void throwsError(JsonDocument_2KB doc) {
+void throwsError(StaticJsonDocument<STATIC_JSON_DOCUMENT_SIZE> doc) {
     throw std::invalid_argument("AddPositiveIntegers arguments must be positive");
 }
 
-void printLolo(JsonDocument_2KB doc) {
+void printLolo(StaticJsonDocument<STATIC_JSON_DOCUMENT_SIZE> doc) {
     const char *name = doc["name"];
     const char *game = doc["game"];
     int age = doc["age"];
