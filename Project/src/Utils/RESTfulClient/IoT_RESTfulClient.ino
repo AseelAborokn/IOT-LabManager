@@ -1,7 +1,7 @@
 #include "RESTfulClient.hpp"
 
-const char *ssid = "TechPublic";
-const char *password = "";
+const char *ssid = "LAPTOP-P91HMRUQ-9085";
+const char *password = "=12345678";
 
 // This message we want to send as response to GET method
 const char* response = "My Response!!!";
@@ -18,9 +18,10 @@ void jsonBuggedAssigner(JsonDocument_2KB* doc) {
 
 // Example on how to read JSON
 void jsonReader(JsonDocument_2KB doc) {
-    const char *foundKey = doc["foundKey"];
-    const char *unknownKey = doc["unknownKey"];
-
+    char *foundKey, *unknownKey;
+    strcpy(foundKey, doc["foundKey"]);
+    strcpy(unknownKey, doc["unknownKey"]);
+    
     Serial.println("foundKey -");
     Serial.println(foundKey);
     Serial.println("unknownKey -");
@@ -29,13 +30,38 @@ void jsonReader(JsonDocument_2KB doc) {
 
 // In case there was issue with the reader the code should catch it, and return 500 status code with the error occurred
 void jsonBuggedReader(JsonDocument_2KB doc) {
-    const char *unFoundKey = doc["unFoundKey"];
-    const char *accessError = doc["accessError"];
+  
+    char *unFoundKey, *accessError;
+    strcpy(unFoundKey, doc["unFoundKey"]);
+    strcpy(accessError, doc["accessError"]);
     
     Serial.println("unFoundKey -");
     Serial.println(unFoundKey);
     Serial.println("accessError -");
     Serial.println(accessError);
+}
+
+void valueParser(String response) {
+  Serial.println("valueParser handler, the reponse is -");
+  Serial.println(response);
+}
+
+void jsonParser(JsonDocument_2KB response) {
+  Serial.println("jsonParser handler, the reponse is -");
+  char *cod;
+  strcpy(cod, response["cod"]);
+  int message = response["message"].as<int>();
+  int cnt = response["cnt"].as<int>();
+  double temp = response["list"][0]["main"]["temp"].as<double>();
+  Serial.println(cod);
+  Serial.println(message);
+  Serial.println(cnt);
+  Serial.println(temp);
+}
+
+String getDate() {
+  Serial.println("getDate handler");
+  return "";
 }
 
 void setup() {
@@ -54,4 +80,14 @@ void setup() {
 void loop() {
   // Start listening on the HttpRequests
   RESTfulClient::startListening();
+
+  String hostName = "api.openweathermap.org";
+  String path = "data/2.5/forecast";
+  String query = "?id=524901&appid=864c3a42a63a9929ef655b8982950597";
+  RESTfulClient::urlGET(hostName, path, valueParser, query);
+  delay(5000);
+  RESTfulClient::jsonGET(hostName, path, jsonParser, query);
+  delay(5000);
+  RESTfulClient::urlPOST("reqbin.com", "echo/post/json", getDate);
+  delay(5000);
 }
