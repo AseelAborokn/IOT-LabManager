@@ -94,15 +94,15 @@ void saveCustomParameters(WiFiManagerParameter* customMacAddress) {
   Serial.print("myMacAddress: ");
   Serial.println(myMacAddress);
   // Static IP Address
-  strcpy(static_ip, WiFi.localIP().toString().c_str());
+  strcpy(static_ip, WiFi.localIP().toString());
   Serial.print("IP Address: ");
   Serial.println(static_ip);
   // Static Gateway
-  strcpy(static_gw, WiFi.gatewayIP().toString().c_str());
+  strcpy(static_gw, WiFi.gatewayIP().toString());
   Serial.print("Gateway Address: ");
   Serial.println(static_gw);
   // Static Subnet
-  strcpy(static_sn, WiFi.subnetMask().toString().c_str());
+  strcpy(static_sn, WiFi.subnetMask().toString());
   Serial.print("Subnet Address: ");
   Serial.println(static_sn);
 
