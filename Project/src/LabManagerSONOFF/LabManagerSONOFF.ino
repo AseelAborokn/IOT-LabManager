@@ -1,5 +1,9 @@
 #include "SonoffConfigsManager.h"
 
+// Assign output variables to GPIO pins
+#define LED_GPIO  13
+#define RELAY_GPIO  12
+
 // Set web server port number to 80
 WiFiServer server(80);
 
@@ -9,10 +13,6 @@ String header;
 // Auxiliar variables to store the current output state
 String LED_GPIOState = "off";
 String RELAY_GPIOState = "off";
-
-// Assign output variables to GPIO pins
-#define LED_GPIO  13
-#define RELAY_GPIO  12
 
 // Current time
 unsigned long currentTime = millis();
