@@ -5,7 +5,6 @@ WiFiServer server(80);
 
 // Variable to store the HTTP request
 String header;
-String myMACaddress;
 
 // Auxiliar variables to store the current output state
 String LED_GPIOState = "off";
@@ -25,20 +24,19 @@ const long timeoutTime = 2000;
 void setup() {
   //Set up smart switch as AP to connect to WiFi
   setupSONOFFConfigs();
-  
+
   // Initialize the output variables as outputs
   pinMode(LED_GPIO, OUTPUT);
   pinMode(RELAY_GPIO, OUTPUT);
   // Set outputs to LOW
   digitalWrite(LED_GPIO, HIGH);
   digitalWrite(RELAY_GPIO, LOW);
-  
+
   // Print local IP address and start web server
   Serial.println("");
-  Serial.println("WiFi connected.");
+  Serial.println("Setup() - WiFi connected.");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  myMACaddress = WiFi.macAddress();
   server.begin();
 }
 
@@ -67,28 +65,26 @@ void loop(){
             client.println("Content-type:text/html");
             client.println("Connection: close");
             client.println();
-            
-            //Get current MAC Address - if we decide to add updating MAC address feature for later
-            myMACaddress = WiFi.macAddress();
+
             // turns the GPIOs on and off
-            if (header.indexOf("GET /"+ myMACaddress+"/led/on") >= 0) {
+            if (header.indexOf("GET /led/on") >= 0) {
               Serial.println("Blue LED on");
               LED_GPIOState = "on";
               digitalWrite(LED_GPIO, LOW);
-            } else if (header.indexOf("GET /"+ myMACaddress+"/led/off") >= 0) {
+            } else if (header.indexOf("GET /led/off") >= 0) {
               Serial.println("Blue LED off");
               LED_GPIOState = "off";
               digitalWrite(LED_GPIO, HIGH);
-            } else if (header.indexOf("GET /"+ myMACaddress+"/relay/on") >= 0) {
+            } else if (header.indexOf("GET /relay/on") >= 0) {
               Serial.println("Red LED on");
               RELAY_GPIOState = "on";
               digitalWrite(RELAY_GPIO, HIGH);
-            } else if (header.indexOf("GET /"+ myMACaddress+"/relay/off") >= 0) {
+            } else if (header.indexOf("GET /relay/off") >= 0) {
               Serial.println("Red LED off");
               RELAY_GPIOState = "off";
               digitalWrite(RELAY_GPIO, LOW);
             }
-            
+
             // Break out of the while loop
             break;
           } else { // if you got a newline, then clear currentLine

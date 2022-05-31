@@ -3,10 +3,8 @@
   wfm-text-save-demo.ino
   Saves data in JSON file on ESP32
   Uses LittleFS
-
   DroneBot Workshop 2022
   https://dronebotworkshop.com
-
   Functions based upon sketch by Brian Lough
   https://github.com/witnessmenow/ESP32-WiFi-Manager-Examples
 */
@@ -21,18 +19,16 @@
 #define ESP_DRD_USE_LittleFS true            
 #define TRIGGER_PIN 0                             // select which pin will trigger the configuration portal when set to LOW
 #define JSON_CONFIG_FILE "/sonoff_configs.json"   // JSON configuration file
-#define MAX_ID_LENGTH 128                         // Max number of UID at MongoDB Document
 #define MAX_ADDRESS_LENGTH 16                     // Max number of UID at MongoDB Document
 
 bool shouldSaveConfig = false;  // Flag for saving data
 int timeout = 120;              // seconds to run for
 
 // Custom Configurations - Global-Variables to hold data from custom textboxes
-String myMacAddress;                                  // SONOFF MacAddress
 char static_ip[MAX_ADDRESS_LENGTH] = "10.0.1.56";     // Static IP Address
 char static_gw[MAX_ADDRESS_LENGTH] = "10.0.1.1";      // Static gateway
 char static_sn[MAX_ADDRESS_LENGTH] = "255.255.0.0";   // Static Subnet
-IPAddress primaryDNS(8, 8, 8, 8);                     //DO NOT CHANGE UNLESS YOU KNOW HOW TO - This is relevant to HTTP requests
+IPAddress primaryDNS(8, 8, 8, 8);                     // DO NOT CHANGE UNLESS YOU KNOW HOW TO - This is relevant to HTTP requests
 
 // Define WiFiManager Object
 WiFiManager wm;
@@ -55,7 +51,6 @@ bool saveConfigFile()
   Serial.println(F("Saving configuration..."));
   // Create a JSON document
   StaticJsonDocument<512> json;
-  json["myMacAddress"] = myMacAddress;
   json["ip"] = WiFi.localIP().toString();
   json["gateway"] = WiFi.gatewayIP().toString();
   json["subnet"] = WiFi.subnetMask().toString();
@@ -81,18 +76,10 @@ bool saveConfigFile()
 }
 
 
-void saveCustomParameters(WiFiManagerParameter* customMacAddress) {
+void saveCustomParameters() {
   // If we get here, we are connected to the WiFi
-  Serial.println("");
   Serial.println("WiFi connected");
-  Serial.print("IP address (WiFi.localIP): ");
-  Serial.println(WiFi.localIP());
 
-  // Lets deal with the user config values
-  //MAC Address of Sonoff Switch
-  myMacAddress = String(customMacAddress->getValue());
-  Serial.print("myMacAddress: ");
-  Serial.println(myMacAddress);
   // Static IP Address
   strcpy(static_ip, WiFi.localIP().toString().c_str());
   Serial.print("IP Address: ");
@@ -139,12 +126,11 @@ bool loadConfigFile()
           Serial.println("Parsing JSON");
 
           // Loading the configs from the file to the global variables
-          myMacAddress = json["myMacAddress"].as<String>();
           if (json["ip"]) {
             Serial.println("setting custom ip from config");
-            strcpy(static_ip, json["ip"]);
-            strcpy(static_gw, json["gateway"]);
-            strcpy(static_sn, json["subnet"]);
+            strcpy(static_ip, json["ip"].as<String>().c_str());
+            strcpy(static_gw, json["gateway"].as<String>().c_str());
+            strcpy(static_sn, json["subnet"].as<String>().c_str());
             Serial.println(static_ip);
           } else {
             Serial.println("no custom ip in config");
@@ -220,28 +206,18 @@ void setupSONOFFConfigs() {
     forceConfig = true;
   }
   WiFi.mode(WIFI_STA);                            // Explicitly set WiFi mode (Station-Mode / Client-Mode)
-  //MAC Address
-  myMacAddress = WiFi.macAddress();
 
   //  wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!
   wm.setSaveConfigCallback(saveConfigCallback);   // Set config save notify callback
   wm.setAPCallback(configModeCallback);           // Set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
   
   // Adding custom elements to the page (corresponds to the global configs)
-  // MAC Address
-  char convertedMACValue[MAX_ID_LENGTH];
-  sprintf(convertedMACValue, "%s", myMacAddress.c_str());
-  WiFiManagerParameter custom_MAC_Address("myMacAddress", "Sonoff's MAC Address: ", convertedMACValue, MAX_ID_LENGTH, "readonly");
   // Creating the custome IP network
   IPAddress _ip, _gw, _sn;
   _ip.fromString(static_ip);
   _gw.fromString(static_gw);
   _sn.fromString(static_sn);
   wm.setSTAStaticIPConfig(_ip, _gw, _sn, primaryDNS);
-  
-  // Add all defined parameters
-  wm.addParameter(&custom_MAC_Address);
-  // End add Parameter Section
 
   // Run if we need a configuration
   if (forceConfig) {
@@ -259,5 +235,5 @@ void setupSONOFFConfigs() {
   }
   /////////Save custom parmeters
   // If we get here, we are connected to the WiFi
-  saveCustomParameters(&custom_MAC_Address);
+  saveCustomParameters();
 }
