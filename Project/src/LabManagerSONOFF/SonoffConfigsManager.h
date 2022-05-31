@@ -3,10 +3,8 @@
   wfm-text-save-demo.ino
   Saves data in JSON file on ESP32
   Uses LittleFS
-
   DroneBot Workshop 2022
   https://dronebotworkshop.com
-
   Functions based upon sketch by Brian Lough
   https://github.com/witnessmenow/ESP32-WiFi-Manager-Examples
 */
@@ -94,15 +92,15 @@ void saveCustomParameters(WiFiManagerParameter* customMacAddress) {
   Serial.print("myMacAddress: ");
   Serial.println(myMacAddress);
   // Static IP Address
-  strcpy(static_ip, WiFi.localIP().toString());
+  strcpy(static_ip, WiFi.localIP().toString().c_str());
   Serial.print("IP Address: ");
   Serial.println(static_ip);
   // Static Gateway
-  strcpy(static_gw, WiFi.gatewayIP().toString());
+  strcpy(static_gw, WiFi.gatewayIP().toString().c_str());
   Serial.print("Gateway Address: ");
   Serial.println(static_gw);
   // Static Subnet
-  strcpy(static_sn, WiFi.subnetMask().toString());
+  strcpy(static_sn, WiFi.subnetMask().toString().c_str());
   Serial.print("Subnet Address: ");
   Serial.println(static_sn);
 
@@ -142,9 +140,9 @@ bool loadConfigFile()
           myMacAddress = json["myMacAddress"].as<String>();
           if (json["ip"]) {
             Serial.println("setting custom ip from config");
-            strcpy(static_ip, json["ip"]);
-            strcpy(static_gw, json["gateway"]);
-            strcpy(static_sn, json["subnet"]);
+            strcpy(static_ip, json["ip"].as<String>().c_str());
+            strcpy(static_gw, json["gateway"].as<String>().c_str());
+            strcpy(static_sn, json["subnet"].as<String>().c_str());
             Serial.println(static_ip);
           } else {
             Serial.println("no custom ip in config");
