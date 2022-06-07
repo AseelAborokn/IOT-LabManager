@@ -20,19 +20,19 @@ ___
 ### Add station in the application:
 1. Login to the account who should own the station.
 
-<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/StaticIP/imgs/home_page.png" width="250" hight="250">
+<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/imgs/home_page.png" width="250" hight="250">
 
 2. Click on the `drawer` button on the top left corner of the `homepage` and select `My Stations` option.
 
-<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/StaticIP/imgs/drawer.png" width="250" hight="250">
+<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/imgs/drawer.png" width="250" hight="250">
 
 3. Click on `+` icon on the top right corner.
 
-<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/StaticIP/imgs/my_stations.png" width="250" hight="250">
+<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/imgs/my_stations.png" width="250" hight="250">
 
 5. Fill all the fields and click on the `green button`
 
-<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/StaticIP/imgs/CreateStation.png" width="250" hight="250">
+<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/imgs/CreateStation.png" width="250" hight="250">
 
 ___
 
