@@ -1,12 +1,9 @@
 # IOT-LabManager 🥼 👨‍🔬
-#### LabManager - Web&amp;Arduino platform for labratory manging and access
+#### LabManager - Web&amp;Arduino platform for labratory access managing
 
 
 
-### Useful links 👀 - 
-```
-Please ask aseel.aborokn for permissions
-```
+### links 👀 - 
 - [GoogleDrive](https://drive.google.com/drive/folders/1LymdwhpFjWQGFaYAkmWf963e8x5aBm2m?usp=sharing)
 - [Wiki](https://github.com/AseelAborokn/IOT-LabManager/wiki)
 - [Arduino Refernces](https://www.arduino.cc/reference/en/)
