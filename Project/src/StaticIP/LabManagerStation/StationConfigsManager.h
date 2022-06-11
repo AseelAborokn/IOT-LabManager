@@ -274,28 +274,28 @@ bool onDemandConfigStation() {
     // Adding custom elements to the page (corresponds to the global configs)
     // station_id
     char convertedIdValue[MAX_ID_LENGTH];               
-    sprintf(convertedIdValue, "%s", station_id); 
+    sprintf(convertedIdValue, "%s", station_id.c_str()); 
     WiFiManagerParameter custom_station_id("station_id", "Station's Id: ", convertedIdValue, MAX_ID_LENGTH);
     
     // station_name
     char convertedNameValue[MAX_ID_LENGTH];               
-    sprintf(convertedNameValue, "%s", station_id); 
+    sprintf(convertedNameValue, "%s", station_name.c_str()); 
     WiFiManagerParameter custom_station_name("station_name", "Station's Name: ", convertedNameValue, MAX_ID_LENGTH);
 
     // owner_id
     char convertedOwnerValue[MAX_ID_LENGTH];               
-    sprintf(convertedOwnerValue, "%s", owner_id); 
+    sprintf(convertedOwnerValue, "%s", owner_id.c_str()); 
     WiFiManagerParameter custom_owner_id("owner_id", "Owner's Id: ", convertedOwnerValue, MAX_ID_LENGTH);
 
     
     // accessibility
     char convertedAccessibilityValue[MAX_ID_LENGTH];               
-    sprintf(convertedAccessibilityValue, "%s", accessibility); 
+    sprintf(convertedAccessibilityValue, "%s", accessibility.c_str()); 
     WiFiManagerParameter custom_accessibility("accessibility", "Accessibility: ", convertedAccessibilityValue, MAX_ID_LENGTH);
 
     // station_status
     char convertedStatusValue[MAX_ID_LENGTH];               
-    sprintf(convertedStatusValue, "%s", station_status); 
+    sprintf(convertedStatusValue, "%s", station_status.c_str()); 
     WiFiManagerParameter custom_station_status("station_status", "Status: ", convertedStatusValue, MAX_ID_LENGTH);
     
     // run_time_in_secs
@@ -305,7 +305,7 @@ bool onDemandConfigStation() {
 
     // SONOFF IP ADDRESS
     char convertedSonoffIpValue[MAX_IP_ADDRESS_LENGTH];               
-    sprintf(convertedSonoffIpValue, "%s", sonoff_ip_address); 
+    sprintf(convertedSonoffIpValue, "%s", sonoff_ip_address.c_str()); 
     WiFiManagerParameter custom_sonoff_ip_address("sonoff_ip_address", "Sonoff Ip Address: ", convertedSonoffIpValue, MAX_IP_ADDRESS_LENGTH);
     
     //Force config portal
@@ -349,28 +349,28 @@ void setupStationConfigs() {
   // Adding custom elements to the page (corresponds to the global configs)
   // station_id
     char convertedIdValue[MAX_ID_LENGTH];               
-    sprintf(convertedIdValue, "%s", station_id); 
+    sprintf(convertedIdValue, "%s", station_id.c_str()); 
     WiFiManagerParameter custom_station_id("station_id", "Station's Id: ", convertedIdValue, MAX_ID_LENGTH);
   
   // station_name
     char convertedNameValue[MAX_ID_LENGTH];               
-    sprintf(convertedNameValue, "%s", station_name); 
+    sprintf(convertedNameValue, "%s", station_name.c_str()); 
     WiFiManagerParameter custom_station_name("station_name", "Station's Name: ", convertedNameValue, MAX_ID_LENGTH);
 
     // owner_id
     char convertedOwnerValue[MAX_ID_LENGTH];               
-    sprintf(convertedOwnerValue, "%s", owner_id); 
+    sprintf(convertedOwnerValue, "%s", owner_id.c_str()); 
     WiFiManagerParameter custom_owner_id("owner_id", "Owner's Id: ", convertedOwnerValue, MAX_ID_LENGTH);
 
     
     // accessibility
     char convertedAccessibilityValue[MAX_ID_LENGTH];               
-    sprintf(convertedAccessibilityValue, "%s", accessibility); 
+    sprintf(convertedAccessibilityValue, "%s", accessibility.c_str()); 
     WiFiManagerParameter custom_accessibility("accessibility", "Accessibility: ", convertedAccessibilityValue, MAX_ID_LENGTH);
 
     // station_status
     char convertedStatusValue[MAX_ID_LENGTH];               
-    sprintf(convertedStatusValue, "%s", station_status); 
+    sprintf(convertedStatusValue, "%s", station_status.c_str()); 
     WiFiManagerParameter custom_station_status("station_status", "Status: ", convertedStatusValue, MAX_ID_LENGTH);
     
     // run_time_in_secs
@@ -380,7 +380,7 @@ void setupStationConfigs() {
 
   // SONOFF IP ADDRESS
     char convertedSonoffIpValue[MAX_IP_ADDRESS_LENGTH];               
-    sprintf(convertedSonoffIpValue, "%s", sonoff_ip_address); 
+    sprintf(convertedSonoffIpValue, "%s", sonoff_ip_address.c_str()); 
     WiFiManagerParameter custom_sonoff_ip_address("sonoff_ip_address", "Sonoff Ip Address: ", convertedSonoffIpValue, MAX_IP_ADDRESS_LENGTH);
          
   // Add all defined parameters
