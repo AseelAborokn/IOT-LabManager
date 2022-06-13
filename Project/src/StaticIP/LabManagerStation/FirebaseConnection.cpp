@@ -3,30 +3,18 @@
 #include "FirebaseConnection.hpp"
 
 //Firebase credentials - could replace with adding them as parameters to constructor
-#define API_KEY "AIzaSyDlsALeeNPMQFR8xOvuGgD1OddHBHgzZIk"
-#define FIREBASE_PROJECT_ID "lab-manager-demo"
-#define USER_EMAIL "lara.kinan13@gmail.com"
-#define USER_PASSWORD "Lara230900"
+#define API_KEY "AIzaSyAS22oKopW8qvwBhUy71To_Egpoe_SHxzw"
+#define FIREBASE_PROJECT_ID "iot-labmanager"
+#define USER_EMAIL "admin@gmail.com"//"lara.kinan13@gmail.com" //TODO:: remove rules of Firebase so that not to need email
+#define USER_PASSWORD "admin123"// "Lara230900"
 
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
 extern String station_id;
-extern String station_name;
-extern String owner_id;
-extern int run_time_in_secs;
-extern String accessibility;
-extern String station_status;
-
-/*
- * Convert String to char Array
- */
-char* stringToCharArr(String st){
-  char* writable = new char[st.length() + 1];
-  strcpy(writable, st.c_str());
-  return writable;
-}
+extern String sonoff_ip_address;
+extern bool updateConfigFile(String newOwnerID, String newStationName, int newRunTime, String newAccessibility, String newStationStatus, String newSonoffIpAddress);
 
 /*
  * Cuts the String content to get String after pathToName
@@ -42,16 +30,20 @@ String cutName(String content, String pathToName)
 bool updateFieldsFromFirebase()
 {
   Serial.println("GETTING STATION DOCUMENT");
-  String station_document = FirebaseConnection::getStationDoc(station_id);
-  if(station_document == "")
+  if(station_id.compareTo("") == 0)
     return false;
-  //station_id = FirebaseConnection::getDocumentName(station_document, "name");
+  String station_document = FirebaseConnection::getStationDoc(station_id);
+  if(station_document.compareTo("") == 0) //Check if such a Document exists
+    return false;
+  
   if(station_id.compareTo("") != 0)
   {
-    accessibility = FirebaseConnection::getFieldByPayload(station_document, "string", "name");
-    accessibility = FirebaseConnection::getFieldByPayload(station_document, "string", "accessibility");
-    station_status = FirebaseConnection::getFieldByPayload(station_document, "string", "status");
-    run_time_in_secs = atoi(stringToCharArr(FirebaseConnection::getFieldByPayload(station_document, "integer", "run_time_in_secs")));
+    String new_owner_id = FirebaseConnection::getFieldByPayload(station_document, "string", "owner_id");
+    String new_station_name = FirebaseConnection::getFieldByPayload(station_document, "string", "name");
+    String new_accessibility = FirebaseConnection::getFieldByPayload(station_document, "string", "accessibility");
+    String new_station_status = FirebaseConnection::getFieldByPayload(station_document, "string", "status");
+    int new_run_time_in_secs = atoi((FirebaseConnection::getFieldByPayload(station_document, "integer", "run_time_in_secs")).c_str());
+    updateConfigFile(new_owner_id, new_station_name, new_run_time_in_secs, new_accessibility, new_station_status, sonoff_ip_address);
   }
   return true;
 }
@@ -206,7 +198,7 @@ String FirebaseConnection::addStationToFirebase(String doc_name, String accessib
   return "";
 }
 
-String FirebaseConnection::recordUsageInHistory(String station_name, String user_id, char* start_time, int use_time)
+String FirebaseConnection::recordUsageInHistory(String station_name, String user_id, String start_time, int use_time)
 {
   if (Firebase.ready())
   {
@@ -222,7 +214,7 @@ String FirebaseConnection::recordUsageInHistory(String station_name, String user
       if (Firebase.Firestore.createDocument(&fbdo, FIREBASE_PROJECT_ID, "", documentPath.c_str(), content.raw()))
           Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
       else
-          return fbdo.errorReason(); //TODO:: replace with empty string when done testing
+          return fbdo.errorReason();
       return getDocumentName(fbdo.payload(), "UsageHistory/");
   }
   return "";
@@ -230,7 +222,7 @@ String FirebaseConnection::recordUsageInHistory(String station_name, String user
 
 void FirebaseConnection::extendUsageRecord(String doc_name, int use_time)
 {
-  updateUsageHistoryRecordField(doc_name, "finished_at", "timestamp", finishTime(stringToCharArr(printLocalTime()), use_time));
+  updateUsageHistoryRecordField(doc_name, "finished_at", "timestamp", finishTime((printLocalTime()).c_str(), use_time));
 }
 
 String FirebaseConnection::getPermissionStatus(String station_id, String owner_id, String user_id)
@@ -261,7 +253,7 @@ String FirebaseConnection::getPermissionStatus(String station_id, String owner_i
 String FirebaseConnection::getUserID(String cid) {
   if (Firebase.ready())
   {
-      Serial.print("Query a Firestore database... ");
+      Serial.print("Query a Firestore database for UID from CID ... ");
       FirebaseJson query;
       query.set("from/collectionId", "LabUsers");
       query.set("where/compositeFilter/op", "AND");
@@ -269,6 +261,7 @@ String FirebaseConnection::getUserID(String cid) {
       if (Firebase.Firestore.runQuery(&fbdo, FIREBASE_PROJECT_ID, "", "" /* The document path */, &query))
       {
         //Print payload to screen
+        Serial.println("Debugging for cor paniced issue");
         Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
         String content = getQueryField(fbdo.payload(), "document/name");
         return cutName(content, "LabUsers/");

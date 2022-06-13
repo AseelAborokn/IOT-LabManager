@@ -14,9 +14,12 @@ String header;
 String LED_GPIOState = "off";
 String RELAY_GPIOState = "off";
 
-unsigned long currentTime = millis(); // Current time
-unsigned long previousTime = 0;       // Previous time
-const long timeoutTime = 2000;        // Define timeout time in milliseconds (example: 2000ms = 2s)
+// Current time
+unsigned long currentTime = millis();
+// Previous time
+unsigned long previousTime = 0; 
+// Define timeout time in milliseconds (example: 2000ms = 2s)
+const long timeoutTime = 2000;
 
 void setup() {
   //Set up smart switch as AP to connect to WiFi

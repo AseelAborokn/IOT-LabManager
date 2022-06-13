@@ -181,7 +181,7 @@ bool onDemandConfigSONOFF() {
   if ( digitalRead(TRIGGER_PIN) == LOW ) { // is configuration portal requested?
     Serial.println("Resetting SONOFF For Demand Configurations.");
     wm.resetSettings();                 //reset settings - for testing
-    delay(3000);
+    delay(5000);
     ESP.restart();
     return true;
   }
@@ -207,7 +207,7 @@ void setupSONOFFConfigs() {
   }
   WiFi.mode(WIFI_STA);                            // Explicitly set WiFi mode (Station-Mode / Client-Mode)
 
-  //  wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!
+//    wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!
   wm.setSaveConfigCallback(saveConfigCallback);   // Set config save notify callback
   wm.setAPCallback(configModeCallback);           // Set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
   

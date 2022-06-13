@@ -123,7 +123,7 @@ class FirebaseConnection {
      * @param use_time - Document field, seconds of use time, should be called with value of Station's run_time_in_secs
      * @return - The name of the document created as seen under collection UsageHistory
      */
-    static String recordUsageInHistory(String station_name, String user_id, char* start_time, int use_time);
+    static String recordUsageInHistory(String station_name, String user_id, String start_time, int use_time);
     /*
      * Update Finished_at field in document 
      * For our purposes, finished_at field is changed when station user scans for extension
@@ -131,7 +131,6 @@ class FirebaseConnection {
      * @param doc_name - he name of the document to be updated, as seen in Usage History
      * @param use_time - seconds of use time to be added, should be called with value of Station's run_time_in_secs
      */
-    //TODO:: When adapting to station add global run_time instead of use_time
     static void extendUsageRecord(String doc_name, int use_time);
     /*
      * Runs query by IDs to get Permission Status
