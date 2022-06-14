@@ -1,4 +1,6 @@
 #include "SonoffConfigsManager.h"
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 
 // Assign output variables to GPIO pins
 #define LED_GPIO  13
@@ -13,7 +15,6 @@ String header;
 // Auxiliar variables to store the current output state
 String LED_GPIOState = "off";
 String RELAY_GPIOState = "off";
-
 
 unsigned long currentTime = millis();   // Current time
 unsigned long previousTime = 0;         // Previous time
@@ -30,16 +31,30 @@ void setup() {
   digitalWrite(LED_GPIO, HIGH);
   digitalWrite(RELAY_GPIO, LOW);
 
-  // Print local IP address and start web server
-  Serial.println("");
-  Serial.println("Setup() - WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "esp8266.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  if (!MDNS.begin(my_hostname)) {
+    Serial.println("Error setting up MDNS responder!");
+    while (1) {
+      delay(1000);
+    }
+  }
+  Serial.println("mDNS responder started");
+
+  // Start TCP (HTTP) server
   server.begin();
+  Serial.println("TCP server started");
+
+  // Add service to MDNS-SD
+  MDNS.addService("http", "tcp", 80);
 }
 
 void loop(){
   onDemandConfigSONOFF();
+  MDNS.update();
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if (client) {                             // If a new client connects,
@@ -81,6 +96,10 @@ void loop(){
               Serial.println("Red LED off");
               RELAY_GPIOState = "off";
               digitalWrite(RELAY_GPIO, LOW);
+            } else if (header.indexOf("GET /IP_Address") >= 0) {
+              client.print(WiFi.localIP().toString());
+            } else {
+              client.print("HTTP/1.1 404 Not Found\r\n\r\n");
             }
 
             // Break out of the while loop

@@ -104,9 +104,8 @@ void setup() {
   pinMode(SHUTDOWN_PIN, INPUT_PULLUP);
 
   //Set up beeper and default to silence
-  //For Beeper HIGH = Silence, LOW = BEEP
   pinMode(BEEPER_PIN, OUTPUT);
-  digitalWrite(BEEPER_PIN, HIGH);         
+  digitalWrite(BEEPER_PIN, HIGH);         //For Beeper HIGH = Silence, LOW = BEEP
 
   //Sonoff Connection setup
   RESTfulClient::initRESTClient();

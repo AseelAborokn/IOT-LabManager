@@ -19,16 +19,13 @@
 #define ESP_DRD_USE_LittleFS true            
 #define TRIGGER_PIN 0                             // select which pin will trigger the configuration portal when set to LOW
 #define JSON_CONFIG_FILE "/sonoff_configs.json"   // JSON configuration file
-#define MAX_ADDRESS_LENGTH 16                     // Max number of UID at MongoDB Document
+#define HOSTNAME_MAX_LENGTH 128
 
 bool shouldSaveConfig = false;  // Flag for saving data
 int timeout = 120;              // seconds to run for
 
 // Custom Configurations - Global-Variables to hold data from custom textboxes
-char static_ip[MAX_ADDRESS_LENGTH] = "0.0.0.0";     // Static IP Address
-char static_gw[MAX_ADDRESS_LENGTH] = "0.0.0.0";     // Static gateway
-char static_sn[MAX_ADDRESS_LENGTH] = "0.0.0.0";     // Static Subnet
-IPAddress primaryDNS(8, 8, 8, 8);                   // DO NOT CHANGE UNLESS YOU KNOW HOW TO - This is relevant to HTTP requests
+char my_hostname[HOSTNAME_MAX_LENGTH] = "";
 
 // Define WiFiManager Object
 WiFiManager wm;
@@ -51,9 +48,7 @@ bool saveConfigFile()
   Serial.println(F("Saving configuration..."));
   // Create a JSON document
   StaticJsonDocument<512> json;
-  json["ip"] = WiFi.localIP().toString();
-  json["gateway"] = WiFi.gatewayIP().toString();
-  json["subnet"] = WiFi.subnetMask().toString();
+  json["my_hostname"] = String(my_hostname);
   
   // Open config file
   File configFile = LittleFS.open(JSON_CONFIG_FILE, "w");
@@ -76,22 +71,14 @@ bool saveConfigFile()
 }
 
 
-void saveCustomParameters() {
+void saveCustomParameters(WiFiManagerParameter *custom_my_hostname) {
   // If we get here, we are connected to the WiFi
   Serial.println("WiFi connected");
 
   // Static IP Address
-  strcpy(static_ip, WiFi.localIP().toString().c_str());
-  Serial.print("IP Address: ");
-  Serial.println(static_ip);
-  // Static Gateway
-  strcpy(static_gw, WiFi.gatewayIP().toString().c_str());
-  Serial.print("Gateway Address: ");
-  Serial.println(static_gw);
-  // Static Subnet
-  strcpy(static_sn, WiFi.subnetMask().toString().c_str());
-  Serial.print("Subnet Address: ");
-  Serial.println(static_sn);
+  strcpy(my_hostname, custom_my_hostname->getValue());
+  Serial.print("My HostName: ");
+  Serial.println(my_hostname);
 
   // Save the custom parameters to FS
   if (shouldSaveConfig) {
@@ -126,15 +113,8 @@ bool loadConfigFile()
           Serial.println("Parsing JSON");
 
           // Loading the configs from the file to the global variables
-          if (json["ip"]) {
-            Serial.println("setting custom ip from config");
-            strcpy(static_ip, json["ip"].as<String>().c_str());
-            strcpy(static_gw, json["gateway"].as<String>().c_str());
-            strcpy(static_sn, json["subnet"].as<String>().c_str());
-            Serial.println(static_ip);
-          } else {
-            Serial.println("no custom ip in config");
-          }
+          Serial.println("setting custom ip from config");
+          strcpy(my_hostname, json["my_hostname"].as<String>().c_str());
           Serial.println(F("Mounting File System -> SUCCEEDED!"));
           return true;
         }
@@ -181,7 +161,7 @@ bool onDemandConfigSONOFF() {
   if ( digitalRead(TRIGGER_PIN) == LOW ) { // is configuration portal requested?
     Serial.println("Resetting SONOFF For Demand Configurations.");
     wm.resetSettings();                 //reset settings - for testing
-    delay(5000);
+    delay(3000);
     ESP.restart();
     return true;
   }
@@ -207,18 +187,19 @@ void setupSONOFFConfigs() {
   }
   WiFi.mode(WIFI_STA);                            // Explicitly set WiFi mode (Station-Mode / Client-Mode)
 
-//    wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!
+  //  wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!
   wm.setSaveConfigCallback(saveConfigCallback);   // Set config save notify callback
   wm.setAPCallback(configModeCallback);           // Set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
   
   // Adding custom elements to the page (corresponds to the global configs)
-  // Creating the custome IP network
-  IPAddress _ip, _gw, _sn;
-  _ip.fromString(static_ip);
-  _gw.fromString(static_gw);
-  _sn.fromString(static_sn);
-  wm.setSTAStaticIPConfig(_ip, _gw, _sn, primaryDNS);
+  char convertedMyHostNameValue[HOSTNAME_MAX_LENGTH];
+  sprintf(convertedMyHostNameValue, "%s", my_hostname);
+  WiFiManagerParameter custom_my_hostname("my_hostname", "Host Name: ", convertedMyHostNameValue, HOSTNAME_MAX_LENGTH-1);
 
+  // Add all defined parameters
+  wm.addParameter(&custom_my_hostname);
+  // End add parameters section
+  
   // Run if we need a configuration
   if (forceConfig) {
     ////Force config portal
@@ -235,5 +216,5 @@ void setupSONOFFConfigs() {
   }
   /////////Save custom parmeters
   // If we get here, we are connected to the WiFi
-  saveCustomParameters();
+  saveCustomParameters(&custom_my_hostname);
 }
