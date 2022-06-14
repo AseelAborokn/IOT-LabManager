@@ -187,7 +187,7 @@ void printUIDToLCD(byte* b2, int b2_size, int row)
       lcd.setCursor(j,row);
       lcd.print(b2[i], HEX);  
     }
-    j+=3;
+    j+=2;
   }
 }
 
