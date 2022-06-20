@@ -6,7 +6,7 @@
 2. SONOFF.
 3. Hardware for the station.
 
-With Static-IP feature you are able to chose the IP-Address of the SONOFF!
+With mDNS feature you are able to choose your own hostname for your station's Sonoff!
 
 ___
 
