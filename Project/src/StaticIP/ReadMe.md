@@ -6,7 +6,7 @@
 2. SONOFF.
 3. Hardware for the station.
 
-With Static-IP feature you are able to chose the IP-Address of the SONOFF!
+With Static-IP feature you are able to choose the IP-Address of the SONOFF!
 
 ___
 
