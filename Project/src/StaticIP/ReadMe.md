@@ -45,11 +45,25 @@ First of all you need to know your `Subnet Mask` & `Default Gateway` - These can
 After receiving the info -
 1. Upload SONOFF code.
 2. Hold the button of the SONOFF for until `SwithConfigurationsManager_AP` WiFi appears.
-3. Connect to `SwithConfigurationsManager_AP` and click of `WiFi Configure`.
+3. Connect to `SwithConfigurationsManager_AP` and click `WiFi Configure` in the page that pops up. If this page does not pop up automatically, in your browser navigate to port 192.168.4.1 and you should see the page.
 4. Select the desired WiFi.
 5. Insert the password to it.
 6. Fill the desired `IP-Address`.
 7. Fill the info on `Subnet Mask` & `Default Gateway`.
 
 <img src="https://user-images.githubusercontent.com/51314991/172392456-fc268d1c-12b5-4025-9995-e93cfbec6296.png" width="250" hight="250">
+
+___
+
+### Setup Station:
+
+You will need to know your `Station Name` as it is in the app and the `Static IP` of your SONOFF which you have configured in the previous step.
+
+After the receiving the info - 
+1. Upload Station code.
+2. Connect to `StationConfigurationManager_AP` and click `WiFi Configure` in the page that pops up. If this page does not pop up automatically, in your browser navigate to port 192.168.4.1 and you should see the page.
+3. Select the desired WiFi.
+4. Insert the password to it.
+5. Fill the desired `Station's ID` as it is seen in the app.
+6. Fill the desired `Sonoff Ip Address` as you entered it in the previous step.
 
