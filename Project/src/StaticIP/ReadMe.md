@@ -62,8 +62,11 @@ You will need to know your `Station Name` as it is in the app and the `Static IP
 After the receiving the info - 
 1. Upload Station code.
 2. Connect to `StationConfigurationManager_AP` and click `WiFi Configure` in the page that pops up. If this page does not pop up automatically, in your browser navigate to port 192.168.4.1 and you should see the page.
-3. Select the desired WiFi.
+3. Select the desired WiFi, this should be the same WiFi you have set for your SONOFF.
 4. Insert the password to it.
 5. Fill the desired `Station's ID` as it is seen in the app.
 6. Fill the desired `Sonoff Ip Address` as you entered it in the previous step.
 
+<img src="https://user-images.githubusercontent.com/51314991/172392456-fc268d1c-12b5-4025-9995-e93cfbec6296.png" width="250" hight="250">
+
+Now you can use your station freely.
