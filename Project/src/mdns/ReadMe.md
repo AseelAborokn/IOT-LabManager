@@ -1,6 +1,6 @@
 
 
-# Static Ip Setup Manual
+# mDNS Setup Manual
 ##### prerequisites:
 1. Accessible account at our flutter application.
 2. SONOFF.
