@@ -49,7 +49,8 @@ void setup() {
   Serial.println("TCP server started");
 
   // Add service to MDNS-SD
-  MDNS.addService("http", "tcp", 80);
+  MDNS.addService("_http", "_tcp", 80);
+  MDNS.addServiceTxt("_http", "_tcp", "board", my_hostname);
 }
 
 void loop(){

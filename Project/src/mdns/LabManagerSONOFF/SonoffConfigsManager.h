@@ -185,6 +185,9 @@ void setupSONOFFConfigs() {
     Serial.println(F("Forcing config mode as there is no saved config"));
     forceConfig = true;
   }
+  
+  WiFi.setSleep(false);
+  
   WiFi.mode(WIFI_STA);                            // Explicitly set WiFi mode (Station-Mode / Client-Mode)
 
   //  wm.resetSettings();                             // Reset settings (only for development) <---- Comment it out when finishing development!

@@ -1,9 +1,13 @@
-extern String printLocalTime();
-extern String sonoff_ip_address;
-extern void turnOnRedLight();
-extern void turnOnGreenLight();
-extern LiquidCrystal_I2C lcd;
-extern bool updateFieldsFromFirebase();
+//Light initialize
+#define RED_PIN          25                //D25
+#define GREEN_PIN        26                //D26
+#define BLUE_PIN         27                //D27
+
+//RFID initialize
+#define RST_PIN         4
+#define SS_PIN          5
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);          // Create MFRC522 instance
 
 //Initalize last usage parameters
 String lastScannedUID = "";
@@ -13,136 +17,53 @@ String lastUsageFinishTime = "";
 //Does the station need to be updated
 bool shouldUpdate = true;
 
-/*
- * Updates global station variables according to Firebase information 
- * Updates them twice an hour
- */
-void hourlyFetch() 
+//Sonoff IP address
+extern String sonoff_ip_address;
+
+//External 
+extern String printLocalTime();
+extern LiquidCrystal_I2C lcd;
+extern bool updateFieldsFromFirebase();
+
+/*-------------------------------------------------- IMPLEMENTING Utils METHODS -------------------------------------------------------------*/
+
+/*-------------------------------------------------------- LIGHTS METHODS -------------------------------------------------------------------*/
+
+void turnOnBlueLight() {
+  analogWrite(RED_PIN, 0);
+  analogWrite(GREEN_PIN, 0);
+  analogWrite(BLUE_PIN, 255);
+}
+
+void turnOnGreenLight() {
+  analogWrite(RED_PIN, 0);
+  analogWrite(BLUE_PIN, 0);
+  analogWrite(GREEN_PIN, 255);
+}
+
+void turnOnRedLight() {
+  analogWrite(RED_PIN, 255);
+  analogWrite(GREEN_PIN, 0);
+  analogWrite(BLUE_PIN, 0);
+}
+
+/*--------------------------------------------------------- RFID METHODS --------------------------------------------------------------------*/
+void setUpRFID() {
+  SPI.begin();                             // Init SPI bus
+  mfrc522.PCD_Init();                      // Init MFRC522
+  delay(4);                                // Optional delay. Some board do need more time after init to be ready
+}
+
+bool scanCard()
 {
-  String time_now = printLocalTime();
-  struct tm timeinfo;
-  strptime(time_now.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
-  if(timeinfo.tm_min%30 == 0 && shouldUpdate == true)
-  {
-    Serial.println("30 Minute Fetch");
-     shouldUpdate = !updateFieldsFromFirebase();
-  }
-  if(timeinfo.tm_min%30 != 0 && shouldUpdate == false)
-  {
-    shouldUpdate = true;
-  }
+  // There is no new present
+  if ( ! mfrc522.PICC_IsNewCardPresent()) return false;
+  // 
+  if ( ! mfrc522.PICC_ReadCardSerial()) return false;
+
+  return true;
 }
-
-/*
- * Request to extend usage
- * Update Firebase and apropriate variables
- * Print a message to LCD
- */
-void extendAccess() {
-  //Printing to LCD
-  lcd.setCursor(0,0);
-  lcd.print("Usage Extended");
-  
-  //update in firebase
-  FirebaseConnection::extendUsageRecord(lastUsageDocumentName, run_time_in_secs);
-  
-  //update last user finish time in global variable
-  lastUsageFinishTime = FirebaseConnection::getUseDocField(lastUsageDocumentName, "timestamp", "finished_at");
-}
-
-/*
- * Grant station usage access to scanner
- * in success:   
- *    Turn on green lights and print apropriate message to LCD
- *    Log usage in Firebase
- * in failure: (Due to failure to communicate with Smart Switch
- *    Print appropriate message to LCD
- *    Don't log usage in Firebase
- */
-void grantAccess(String UIDScanner) {
-  //send an HTTP request to turn on sonoff smart switch
-  String hostName = sonoff_ip_address;
-  String path = "relay/on";
-  bool result = RESTfulClient::urlGET(hostName, path);
-  
-  //Could not send HTTP request to smart switch, print error message to LCD and do not Log it in Firestore
-  if(result == false) 
-  {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Smart Switch is");
-    lcd.setCursor(0,1);
-    lcd.print("not connected");
-    return;
-  }
-  
-  // Printing Access Granted Message on the LCD
-  lcd.setCursor(0, 1);
-  lcd.print("Access Granted!");
-  
-  // Trun Green Light On
-  turnOnGreenLight();
-
-  //Record usage in Firebase
-  Serial.println("Updating in Usage History");
-  String timeStarted = printLocalTime();
-  lastUsageDocumentName = FirebaseConnection::recordUsageInHistory(station_id, UIDScanner, (timeStarted), run_time_in_secs);
-  lastScannedUID = UIDScanner;
-  lastUsageFinishTime = FirebaseConnection::getUseDocField(lastUsageDocumentName, "timestamp", "finished_at");
-//  delay(5000);
-}
-
-/*
- * Deny station usage to scanner
- * Print appropriate message to LCD and turn on Red Light 
- */
-void denyAccess() {
-  // Printing Access Denied Message on the LCD
-  lcd.setCursor(0,1);
-  lcd.print("Access Denied!");
-  
-  // Trun Red Light On
-  turnOnRedLight();
-}
-
-/*
- * When user's usage time has ended, and no card was scanned for extension
- * Send an HTTP request to Smart Switch to shut off and update variables accordingly
- * in failure:
- *    Print message to LCD
- */
-void stopUsage() {
-  //send an HTTP request to turn off sonoff smart switch
-  String hostName = sonoff_ip_address;
-  String path = "relay/off";
-  Serial.print("Request is ");
-  Serial.println(hostName + " " + path);
-  bool result = RESTfulClient::urlGET(hostName, path);
-
-  //Could not send HTTP request to smart switch, print error message to LCD
-  if(result == false)
-  {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Smart Switch is");
-    lcd.setCursor(0,1);
-    lcd.print("not connecting");
-    delay(3000);
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Please contact");
-    lcd.setCursor(4,1);
-    lcd.print("manager"); 
-    delay(3000);
-  }
-  Serial.println("Updating global variables");
-  //Remove Last usage from global variables
-  lastUsageFinishTime = "";
-  lastScannedUID = "";
-  lastUsageDocumentName = "";
-  return;
-}
-
+/*--------------------------------------------------------- CID METHODS ---------------------------------------------------------------------*/
 /*
  * Turns the CID to a string
  */
@@ -191,6 +112,155 @@ void printUIDToLCD(byte* b2, int b2_size, int row)
   }
 }
 
+/*-------------------------------------------------------- SONOFF METHODS -------------------------------------------------------------------*/
+/*
+ * Turn on sonoff smart switch
+ */
+bool turnOnSwitch()
+{
+  //send an HTTP request to turn on sonoff smart switch
+  String hostName = sonoff_ip_address;
+  String path = "relay/on";
+  bool result = RESTfulClient::urlGET(hostName, path);
+  //Could not send HTTP request to smart switch, print error message to LCD
+  if(result == false)
+  {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Smart Switch is");
+    lcd.setCursor(0,1);
+    lcd.print("not connected");
+  }
+  return result;
+}
+
+/*
+ * Turn off sonoff smart switch
+ */
+bool turnOffSwitch()
+{
+  //send an HTTP request to turn off sonoff smart switch
+  String hostName = sonoff_ip_address;
+  String path = "relay/off";
+  bool result = RESTfulClient::urlGET(hostName, path);
+  
+  //Could not send HTTP request to smart switch, print error message to LCD
+  if(result == false)
+  {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Smart Switch is");
+    lcd.setCursor(0,1);
+    lcd.print("not connecting");
+    delay(3000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Please contact");
+    lcd.setCursor(4,1);
+    lcd.print("manager");   
+  }
+  return result;
+}
+
+/*------------------------------------------------------- STATIONS METHODS ------------------------------------------------------------------*/
+/*
+ * Updates global station variables according to Firebase information 
+ * Updates them twice an hour
+ */
+void hourlyFetch() 
+{
+  String time_now = printLocalTime();
+  struct tm timeinfo;
+  strptime(time_now.c_str(), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  if(timeinfo.tm_min%2 == 0 && shouldUpdate == true)
+  {
+    Serial.println("Hourly Fetch");
+     shouldUpdate = !updateFieldsFromFirebase();
+  }
+  if(timeinfo.tm_min%2 != 0 && shouldUpdate == false)
+  {
+    shouldUpdate = true;
+  }
+}
+
+/*
+ * Request to extend usage
+ * Update Firebase and apropriate variables
+ * Print a message to LCD
+ */
+void extendAccess() {
+  //Printing to LCD
+  lcd.setCursor(0,0);
+  lcd.print("Usage Extended");
+  
+  //update in firebase
+  FirebaseConnection::extendUsageRecord(lastUsageDocumentName, run_time_in_secs);
+  
+  //update last user finish time in global variable
+  lastUsageFinishTime = FirebaseConnection::getUseDocField(lastUsageDocumentName, "timestamp", "finished_at");
+}
+
+/*
+ * Grant station usage access to scanner
+ * in success:   
+ *    Turn on green lights and print apropriate message to LCD
+ *    Log usage in Firebase
+ * in failure: (Due to failure to communicate with Smart Switch
+ *    Print appropriate message to LCD
+ *    Don't log usage in Firebase
+ */
+void grantAccess(String UIDScanner) {
+
+  //Could not send HTTP request to smart switch, print error message to LCD, do not log to Firebase
+  if(turnOnSwitch() == false)
+    return;
+  
+  // Printing Access Granted Message on the LCD
+  lcd.setCursor(0, 1);
+  lcd.print("Access Granted!");
+  
+  // Trun Green Light On
+  turnOnGreenLight();
+
+  //Record usage in Firebase
+  Serial.println("Updating in Usage History");
+  String timeStarted = printLocalTime();
+  lastUsageDocumentName = FirebaseConnection::recordUsageInHistory(station_id, UIDScanner, (timeStarted), run_time_in_secs);
+  lastScannedUID = UIDScanner;
+  lastUsageFinishTime = FirebaseConnection::getUseDocField(lastUsageDocumentName, "timestamp", "finished_at");
+}
+
+/*
+ * Deny station usage to scanner
+ * Print appropriate message to LCD and turn on Red Light 
+ */
+void denyAccess() {
+  // Printing Access Denied Message on the LCD
+  lcd.setCursor(0,1);
+  lcd.print("Access Denied!");
+  
+  // Trun Red Light On
+  turnOnRedLight();
+}
+
+/*
+ * When user's usage time has ended, and no card was scanned for extension
+ * Send an HTTP request to Smart Switch to shut off and update variables accordingly
+ * in failure:
+ *    Print message to LCD
+ */
+void stopUsage() {
+
+  //Could not send HTTP request to smart switch, print error message to LCD
+  if(turnOffSwitch() == false)
+    return;
+
+  //Remove Last usage from global variables
+  lastUsageFinishTime = "";
+  lastScannedUID = "";
+  lastUsageDocumentName = "";
+}
+
 /*
  * Check if UIDScanner (The User ID of the card scanner):
  *    has access to use station and thus should call grantAccess
@@ -224,10 +294,6 @@ void checkUsage(String UIDScanner) {
   //Station is available
   if(lastScannedUID.compareTo(UIDScanner) == 0) //User wants to extend usage
   {
-    Serial.print("Last UID usage : ");
-    Serial.println(lastScannedUID);
-    Serial.print("Scanning now : ");
-    Serial.println(UIDScanner);
     Serial.println("Request for extended public station access - Extend access");
     extendAccess();
     return; 
@@ -256,8 +322,6 @@ void checkUsage(String UIDScanner) {
     return;
   }
   //Station is available and private, scanner is not owner or previous user
-  Serial.println("Owner ID is :");
-  Serial.println(owner_id);
   if(permission_status.compareTo("granted") == 0) //Has access
   {
     Serial.println("Private, available station, user has permission - grant access");
@@ -265,5 +329,5 @@ void checkUsage(String UIDScanner) {
     return; 
   }
   Serial.println("Private, available station, user does not have permission - deny access");
-  denyAccess();//Deny
+  denyAccess();
 }

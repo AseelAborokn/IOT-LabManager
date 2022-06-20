@@ -261,15 +261,16 @@ String FirebaseConnection::getUserID(String cid) {
       if (Firebase.Firestore.runQuery(&fbdo, FIREBASE_PROJECT_ID, "", "" /* The document path */, &query))
       {
         //Print payload to screen
-        Serial.println("Debugging for cor paniced issue");
         Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
         String content = getQueryField(fbdo.payload(), "document/name");
         return cutName(content, "LabUsers/");
       }
       else
+      {
           Serial.println(fbdo.errorReason());
+      }
   }
-  return "";
+  return "ERROR";
 }
 
 String FirebaseConnection::getStationDoc(String station_id)

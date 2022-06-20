@@ -160,6 +160,7 @@ bool RESTfulClient::sendGetRequest(String hostName, String path, String query, S
 
   // Creating the Request to be sent
   String request = RESTfulClient::createRequest(hostName, path, query);
+  
   // Receiving the Payload as string
   if(!RESTfulClient::httpGetRequest(request, payload)) {
     Serial.println("GET Request FAILED!");

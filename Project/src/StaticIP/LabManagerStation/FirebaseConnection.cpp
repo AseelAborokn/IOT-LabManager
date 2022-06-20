@@ -269,7 +269,7 @@ String FirebaseConnection::getUserID(String cid) {
       else
           Serial.println(fbdo.errorReason());
   }
-  return "";
+  return "ERROR";
 }
 
 String FirebaseConnection::getStationDoc(String station_id)
