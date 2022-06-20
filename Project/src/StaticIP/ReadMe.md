@@ -67,6 +67,6 @@ After the receiving the info -
 5. Fill the desired `Station's ID` as it is seen in the app.
 6. Fill the desired `Sonoff Ip Address` as you entered it in the previous step.
 
-<img src="https://user-images.githubusercontent.com/51314991/172392456-fc268d1c-12b5-4025-9995-e93cfbec6296.png" width="250" hight="250">
+<img src="https://github.com/AseelAborokn/IOT-LabManager/blob/master/Project/src/imgs/StaticIP_ConfigureStation.jpeg" width="250" hight="250">
 
 Now you can use your station freely.
