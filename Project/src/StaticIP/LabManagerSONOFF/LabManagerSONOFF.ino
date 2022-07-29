@@ -36,6 +36,10 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.begin();
+  
+  //Turn on LED Light to indicate success
+  LED_GPIOState = "on";
+  digitalWrite(LED_GPIO, LOW);
 }
 
 void loop(){
