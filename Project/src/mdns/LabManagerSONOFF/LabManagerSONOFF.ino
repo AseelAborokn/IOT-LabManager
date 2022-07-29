@@ -51,6 +51,10 @@ void setup() {
   // Add service to MDNS-SD
   MDNS.addService("_http", "_tcp", 80);
   MDNS.addServiceTxt("_http", "_tcp", "board", my_hostname);
+  
+  //Turn on LED Light to indicate success
+  LED_GPIOState = "on";
+  digitalWrite(LED_GPIO, LOW);
 }
 
 void loop(){
